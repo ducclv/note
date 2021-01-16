@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/app/add-table.view.dart';
 
+import 'utils/screen_config.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -31,6 +33,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
+    SizeConfig().init(context);
     return Scaffold(
       appBar: AppBar(
         title: Center(child: Text(widget.title)),
