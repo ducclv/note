@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:horizontal_data_table/horizontal_data_table.dart';
 
 import '../utils/screen_config.dart';
@@ -11,10 +13,7 @@ class AddTable extends StatefulWidget {
 
 class _AddTableState extends State<AddTable> {
   List<Map<String, dynamic>> data = [
-    {"name": "name 1", "data": 1},
-    {"name": "name 2", "data": 2},
-    {"name": "name 3", "data": 3},
-    {"name": "name 4", "data": 4}
+    {"name": "name 1", "data": 0}
   ];
   HDTRefreshController _hdtRefreshController = HDTRefreshController();
 
@@ -28,6 +27,15 @@ class _AddTableState extends State<AddTable> {
     return Scaffold(
       appBar: AppBar(title: Center(child: Text("Add Table"))),
       body: _getBodyWidget(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            data.add({"name": "name 1", "data": 0});
+          });
+        },
+        child: Icon(Icons.add),
+        backgroundColor: Colors.green,
+      ),
     );
   }
 
@@ -48,18 +56,8 @@ class _AddTableState extends State<AddTable> {
               leftHandSideColBackgroundColor: Color(0xFFFFFFFF),
               rightHandSideColBackgroundColor: Color(0xFFFFFFFF),
               enablePullToRefresh: false,
-              // refreshIndicator: const WaterDropHeader(),
-              // refreshIndicatorHeight: 60,
-              // onRefresh: () async {
-              //   print('refresh');
-              //   await Future.delayed(const Duration(milliseconds: 500));
-              //   _hdtRefreshController.refreshCompleted();
-              // },
-              // htdRefreshController: _hdtRefreshController,
             ),
-            height: data.isNotEmpty
-                ? SizeConfig.blockSizeVertical * data.length * 5 + SizeConfig.blockSizeVertical * 5
-                : 0,
+            height: data.isNotEmpty ? SizeConfig.blockSizeVertical * data.length * 5 + SizeConfig.blockSizeVertical * 5 : 0,
           ),
           data.isNotEmpty ? Divider(color: Colors.black, height: 1) : SizedBox(),
         ],
@@ -91,50 +89,75 @@ class _AddTableState extends State<AddTable> {
   }
 
   Widget _generateRightHandSideColumnRow(BuildContext context, int index) {
-    return Row(
-      children: <Widget>[
-        Container(
-          child: Text("${index + 1}"),
-          width: SizeConfig.safeBlockHorizontal * 10,
-          height: SizeConfig.blockSizeVertical * 5,
-          padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-          alignment: Alignment.center,
-        ),
-        Container(
-          child: Text("${data[index]['name']}"),
-          width: SizeConfig.safeBlockHorizontal * 50,
-          height: SizeConfig.blockSizeVertical * 5,
-          padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-          alignment: Alignment.center,
-        ),
-        Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              GestureDetector(
-                  child: Icon(Icons.arrow_left),
-                  onTap: () {
-                    setState(() {
-                      data[index]['data']--;
-                    });
-                  }),
-              Container(child: Text("${data[index]['data']}")),
-              GestureDetector(
-                child: Icon(Icons.arrow_right),
-                onTap: () {
-                  setState(() {
-                    data[index]['data']++;
-                  });
-                },
-              ),
-            ],
-          ),
-          width: SizeConfig.safeBlockHorizontal * 40,
-          height: SizeConfig.blockSizeVertical * 5,
-          padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-          alignment: Alignment.center,
+    return Slidable(
+      actionPane: SlidableStrechActionPane(),
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          color: Colors.redAccent,
+          icon: Icons.delete,
+          onTap: () {
+            setState(() {
+              data.removeAt(index);
+            });
+          },
         ),
       ],
+      child: Row(
+        children: <Widget>[
+          Container(
+            child: Text("${index + 1}"),
+            width: SizeConfig.safeBlockHorizontal * 10,
+            height: SizeConfig.blockSizeVertical * 5,
+            padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+            alignment: Alignment.center,
+          ),
+          Container(
+            child: FormBuilder(
+              child: FormBuilderTextField(
+                name: 'age',
+                decoration: InputDecoration(border: InputBorder.none),
+                onChanged: (dynamic val) {
+                  setState(() {
+                    data[index]['name'] = val.toString();
+                  });
+                },
+                // valueTransformer: (text) => num.tryParse(text),
+                validator: FormBuilderValidators.compose([FormBuilderValidators.required(context)]),
+              ),
+            ),
+            width: SizeConfig.safeBlockHorizontal * 50,
+            height: SizeConfig.blockSizeVertical * 5,
+            alignment: Alignment.center,
+          ),
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                    child: Icon(Icons.arrow_left),
+                    onTap: () {
+                      setState(() {
+                        data[index]['data']--;
+                      });
+                    }),
+                Container(child: Text("${data[index]['data']}")),
+                GestureDetector(
+                  child: Icon(Icons.arrow_right),
+                  onTap: () {
+                    setState(() {
+                      data[index]['data']++;
+                    });
+                  },
+                ),
+              ],
+            ),
+            width: SizeConfig.safeBlockHorizontal * 40,
+            height: SizeConfig.blockSizeVertical * 5,
+            padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+            alignment: Alignment.center,
+          ),
+        ],
+      ),
     );
   }
 }
